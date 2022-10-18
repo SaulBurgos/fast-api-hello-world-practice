@@ -20,6 +20,19 @@ class Person(BaseModel):
     hair_color: Optional[HairColorEnum] = Field(default=None) 
     is_married: Optional[bool] = Field(default = None)
 
+    # yes saul inside of a class
+    # prefill example for swagger
+    class Config:
+        schema_extra = {
+            "example": {
+                "first_name": "saul",
+                "last_name": "burgos",
+                "age": 40,
+                "hair_color": "black",
+                "is_married": False
+            }
+        }
+
 class Location(BaseModel):
     lat: float
     lng: float
@@ -67,8 +80,10 @@ def show_person(
 def update_person(
     person_id: int = Path(..., gt = 0),
     person: Person = Body(...),
-    location: Location = Body(...)
+    #location: Location = Body(...)
 ):
     results = person.dict()
-    results.update(location.dict())
+    #results.update(location.dict())
     return results
+
+
