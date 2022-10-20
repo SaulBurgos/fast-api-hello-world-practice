@@ -11,3 +11,4 @@ starlette==0.20.4
 toml==0.10.2
 typing_extensions==4.4.0
 uvicorn==0.18.3
+python-multipart==0.0.5

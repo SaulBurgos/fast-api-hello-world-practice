@@ -1,8 +1,9 @@
+from doctest import Example
 from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, status
-from fastapi import Body, Query, Path
+from fastapi import Body, Query, Path, Form
 
 app = FastAPI()
 
@@ -46,6 +47,10 @@ class Location(BaseModel):
     lng: float
     country: str
 
+
+class LoginOut(BaseModel):
+    username: str = Field(..., max_length=20, Example="saulburgos") 
+    message: str = Field(...)
 
 @app.get(
     "/", 
@@ -110,4 +115,14 @@ def update_person(
     #results.update(location.dict())
     return results
 
-
+#working with form
+@app.post(
+    path="/login",
+    response_model=LoginOut,
+    status_code=status.HTTP_200_OK
+)
+def login(
+    username: str = Form(...), 
+    password: str = Form(...)
+):
+    return LoginOut(username=username, message="logout successfuly")
