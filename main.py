@@ -1,9 +1,10 @@
+from distutils.command.upload import upload
 from doctest import Example
 from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field, EmailStr
 from fastapi import FastAPI, status
-from fastapi import Body, Query, Path, Form, Header, Cookie
+from fastapi import Body, Query, Path, Form, Header, Cookie, UploadFile, File
 
 app = FastAPI()
 
@@ -150,3 +151,17 @@ def contact(
     cookie: Optional[str] = Cookie(default=None)
 ):
     return user_agent
+
+
+#Files
+@app.post(
+    path="/post-image"
+)
+def post_image(
+    image: UploadFile = File(...)
+):
+    return {
+        "filename": image.filename,
+        "format": image.content_type,
+        "size": len(image.file.read())
+    }
