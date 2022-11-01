@@ -1,9 +1,7 @@
-from distutils.command.upload import upload
-from doctest import Example
 from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field, EmailStr
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, HTTPException
 from fastapi import Body, Query, Path, Form, Header, Cookie, UploadFile, File
 
 app = FastAPI()
@@ -65,15 +63,27 @@ def home():
 @app.post(
     "/person/new", 
     response_model=PersonResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    tags=["persons"],
+    summary="create a person tuanimente"
 )
 def create_person(person: Person = Body(...)):
+    """_summary_
+
+    Args:
+        person (Person, optional): _description_. Defaults to Body(...).
+
+    Returns:
+        _type_: _description_
+    """
     return person
 
 # Query parameters
 @app.get(
     "/person/details", 
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    tags=["persons"],
+    deprecated=True
 )
 def show_person(
     name: Optional[str] = Query(
@@ -89,14 +99,24 @@ def show_person(
         "name": age
     }
 
+persons = [1, 2, 3, 4, 5]
+
 # path parameters
 @app.get(
     "/person/details/{person_id}",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    tags=["persons"]
 )
 def show_person(
     person_id: int = Path(..., gt = 0)
 ):
+
+    if person_id not in persons:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="this person does not exist"
+        ) 
+
     return {
         "person_id": person_id
     }
@@ -105,7 +125,8 @@ def show_person(
 # receiving 2 bodies
 @app.put(
     "/person/{person_id}/",
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    tags=["persons"]
 )
 def update_person(
     person_id: int = Path(..., gt = 0),
@@ -132,7 +153,8 @@ def login(
 #Cookies and headers
 @app.post(
     path="/contact",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    tags=["login"]
 )
 def contact(
     first_name: str = Form(
@@ -155,7 +177,8 @@ def contact(
 
 #Files
 @app.post(
-    path="/post-image"
+    path="/post-image",
+    tags=["persons"]
 )
 def post_image(
     image: UploadFile = File(...)
@@ -165,3 +188,4 @@ def post_image(
         "format": image.content_type,
         "size": len(image.file.read())
     }
+
